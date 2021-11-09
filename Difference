@@ -1,0 +1,49 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.*;
+
+class Difference{
+	static final ReadWriteLock rwl= new ReentrantReadWriteLock();
+	static final Lock writeLock = rwl.writeLock();
+        static final Lock readLock = rwl.readLock();
+        private final List<String> list = new ArrayList<>();
+
+	public void Write(String s){
+		 writeLock.lock();
+          try {
+            list.add(s);
+            System.out.println("Element by thread "+ Thread.currentThread().getName()+ " is added");
+             }
+         finally {
+              writeLock.unlock();
+            }
+	}
+ 	public void Read(int i){
+                 readLock.lock();
+          try {
+            System.out.println("Printing the last element : "+ list.get(i));
+            System.out.println("Element by thread "+ Thread.currentThread().getName()+ " is printed");
+	    
+             }
+         finally {
+              readLock.unlock();
+            }
+        }
+
+	public static void main(String[] args)
+    {
+        Difference obj = new Difference();
+
+        obj.Write("Hi");
+        obj.Write("Hey");
+        obj.Read(0);
+        obj.Read(1);
+        obj.Write("Hello");
+
+        obj.Read(2);
+        obj.Read(1);
+	}
+}
